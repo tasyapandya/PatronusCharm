@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		0A042FF92F714514003D92BC /* PatronusCharm */ = {
+		0A0430102F71454A003D92BC /* PatronusCharm */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = PatronusCharm;
 			sourceTree = "<group>";
@@ -32,7 +32,7 @@
 		0A042FEE2F714514003D92BC = {
 			isa = PBXGroup;
 			children = (
-				0A042FF92F714514003D92BC /* PatronusCharm */,
+				0A0430102F71454A003D92BC /* PatronusCharm */,
 				0A042FF82F714514003D92BC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -61,7 +61,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				0A042FF92F714514003D92BC /* PatronusCharm */,
+				0A0430102F71454A003D92BC /* PatronusCharm */,
 			);
 			name = PatronusCharm;
 			packageProductDependencies = (
