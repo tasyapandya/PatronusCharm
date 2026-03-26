@@ -1,3 +1,12 @@
+//
+//  MainRitualView.swift
+//  PatronusCharm
+//
+//  Created by Tasya Pandya Latifa on 26/03/26.
+//
+
+import SwiftUI
+
 struct MainRitualView: View {
     var body: some View {
         ZStack {
@@ -6,14 +15,11 @@ struct MainRitualView: View {
                 .resizable()
                 .ignoresSafeArea()
             
-            HStack(spacing: 50) { // Berikan jarak antara penyihir dan kuali
-                // Penyihir yang Beranimasi (Frame-by-frame)
+            HStack(spacing: 50) {
                 WitchAnimateView()
-                
-                // Kuali Polos (PNG) + Particle Effect (SpriteKit)
-                PotionCauldronView() 
+                CauldronIdleView()
             }
-            .padding() // Agar tidak terlalu mentok ke pinggir layar landscape
+            .padding()
         }
     }
 }
