@@ -1,15 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "Untitled design.pdf",
+      "filename" : "Idle Look (2).pdf",
       "idiom" : "universal"
     }
   ],
   "info" : {
     "author" : "xcode",
     "version" : 1
-  },
-  "properties" : {
-    "preserves-vector-representation" : true
   }
 }
