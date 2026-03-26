@@ -13,7 +13,4 @@ enum Constants {
     enum Stirring {
         static let minimumDuration = 3.0
     }
-    enum ML {
-        static let confidenceThreshold = 0.30
-    }
 }

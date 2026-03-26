@@ -2,70 +2,53 @@
 //  IdleView.swift
 //  PatronusCharm
 //
+//  Created by Tasya Pandya Latifa on 26/03/26.
+//
 
 import SwiftUI
 
 struct IdleView: View {
     @Environment(RitualViewModel.self) private var vm
-    
-    // Untuk tooltip onboarding
     @State private var showTooltip: Bool = false
     
-    // Untuk animasi buku (subtle float)
-    @State private var bookFloating: Bool = false
-    
     var body: some View {
-        ZStack {
-            
-            // ── Layer 1: Background ──────────────────────────────
-            Image("background_landscape")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-            
-            // ── Layer 2: Karakter & Kuali ────────────────────────
-            VStack {
-                Spacer()
+        GeometryReader { geo in
+            ZStack {
+                // ── Layer 1: Background ──────────────────────────────
+                Image("newbackground")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
                 
-                HStack(alignment: .bottom, spacing: 24) {
-                    // Witch kiri — Pose A
-                    WitchView(poseB: false)
+                // ── Layer 2: Main Layout ─────────────────────────────
+                // Menggunakan ZStack agar kita bisa atur posisi tiap object secara absolut sesuai gambar
+                ZStack(alignment: .bottom) {
                     
-                    // Kuali kanan dengan bubble
+                    // 1. Kucing & Chat Bubble (Kiri Bawah)
+                    VStack(spacing: 8) {
+                        if showTooltip {
+                            TooltipView(text: "Tap the book to begin your ritual")
+                                .transition(.scale.combined(with: .opacity))
+                        }
+                        WitchView(poseB: false)
+                            .frame(width: geo.size.width * 0.2) // Proporsional
+                    }
+                    .position(x: geo.size.width * 0.09, y: geo.size.height * 0.95)
+                    
+                    // 2. Cauldron (Tengah)
                     CauldronIdleView()
-                }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 16)
-            }
-            
-            // ── Layer 3: Buku sebagai CTA ────────────────────────
-            VStack {
-                HStack {
-                    Spacer()
+                        .frame(width: geo.size.width * 0.3)
+                        .position(x: geo.size.width * 0.5, y: geo.size.height * 0.55)
+                    
+                    // 3. Buku / BookButton (Kanan Bawah)
                     BookButtonView(showTooltip: $showTooltip) {
-                        // Action saat buku ditekan
                         withAnimation(.easeInOut(duration: 0.4)) {
                             vm.currentPhase = .inputText
                         }
                     }
-                    .padding(.top, 60)
-                    .padding(.trailing, 24)
+                    .position(x: geo.size.width * 0.83, y: geo.size.height * 0.75)
+                    
                 }
-                Spacer()
-            }
-            
-            // ── Layer 4: Tooltip Onboarding ──────────────────────
-            if showTooltip {
-                VStack {
-                    HStack {
-                        Spacer()
-                        TooltipView(text: "Tap the book to begin your ritual")
-                            .padding(.top, 130) // tepat di bawah buku
-                            .padding(.trailing, 32)
-                    }
-                    Spacer()
-                }
-                .transition(.opacity)
             }
         }
         .onAppear {
@@ -77,7 +60,7 @@ struct IdleView: View {
     
     private func handleOnAppear() {
         // Mulai BGM saat idle view muncul
-        AudioService.shared.playBGM(named: "bgm_ambient")
+        AudioService.shared.playBGM(named: "mainBgm")
         
         // Cek apakah perlu tampilkan tooltip
         let manager = OnboardingManager.shared
@@ -104,3 +87,5 @@ struct IdleView: View {
     IdleView()
         .environment(RitualViewModel())
 }
+
+

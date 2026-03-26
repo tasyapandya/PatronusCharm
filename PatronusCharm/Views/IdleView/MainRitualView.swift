@@ -16,7 +16,7 @@ struct MainRitualView: View {
                 .ignoresSafeArea()
             
             HStack(spacing: 50) {
-                WitchAnimateView()
+                WitchView()
                 CauldronIdleView()
             }
             .padding()

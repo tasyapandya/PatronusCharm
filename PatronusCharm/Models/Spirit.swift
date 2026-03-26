@@ -16,29 +16,29 @@ struct Spirit: Identifiable {
     
     static let phoenix = Spirit(
         name: "Phoenix",
-        lottieFile: "spirit_phoenix",
+        lottieFile: "patronus_phoenix",
+        tintColor: Emotion.unknown.color,
+        emotion: .unknown
+    )
+    
+    static let deer = Spirit(
+        name: "Deer",
+        lottieFile: "patronus_deer",
         tintColor: Emotion.anger.color,
         emotion: .anger
     )
     
-    static let jellyfish = Spirit(
-        name: "Moon Jellyfish",
-        lottieFile: "spirit_jellyfish",
+    static let rabbit = Spirit(
+        name: "Rabbit",
+        lottieFile: "patronus_rabbit",
         tintColor: Emotion.overwhelmed.color,
         emotion: .overwhelmed
     )
     
-    static let owl = Spirit(
-        name: "Celestial Owl",
-        lottieFile: "spirit_owl",
+    static let horse = Spirit(
+        name: "Horse",
+        lottieFile: "patronus_horse",
         tintColor: Emotion.anxiety.color,
         emotion: .anxiety
-    )
-    
-    static let particles = Spirit(
-        name: "Glowing Particle Cluster",
-        lottieFile: "spirit_particles",
-        tintColor: Emotion.unknown.color,
-        emotion: .unknown
     )
 }
