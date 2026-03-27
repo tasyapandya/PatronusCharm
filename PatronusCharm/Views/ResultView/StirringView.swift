@@ -1,3 +1,12 @@
+//
+//  StirringView.swift
+//  PatronusCharm
+//
+//  Created by Tasya Pandya Latifa on 27/03/26.
+//
+
+import SwiftUI
+
 struct StirringView: View {
     @State private var progress: Double = 0.0
     @State private var spoonPosition: CGPoint = .zero

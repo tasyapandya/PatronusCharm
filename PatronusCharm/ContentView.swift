@@ -19,17 +19,8 @@ struct ContentView: View {
             
             // Placeholder untuk page berikutnya — isi nanti
             case .inputText, .scribbling:
-                // CreationView() ← uncomment saat sudah dibuat
-                Color.black
-                    .ignoresSafeArea()
-                    .overlay(
-                        VStack {
-                            Text("Creation View")
-                                .foregroundStyle(.white)
-                            Button("← Back") { vm.currentPhase = .idle }
-                                .foregroundStyle(.white)
-                        }
-                    )
+                CreationView()
+                    .transition(.opacity)
             
             case .stirring, .conjuring, .showingWoA, .releasing, .closure:
                 // ResultView() ← uncomment saat sudah dibuat

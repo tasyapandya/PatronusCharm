@@ -9,45 +9,68 @@ import SwiftUI
 
 struct IdleView: View {
     @Environment(RitualViewModel.self) private var vm
-    @State private var showTooltip: Bool = false
+    
+    // Kontrol visibility kucing + bubble + dim
+    @State private var showWitchInstruction: Bool = true
+    @State private var bubbleText: String = "Tap the book to\nbegin your potion creation!"
     
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                // ── Layer 1: Background ──────────────────────────────
+                
+                // ── Layer 1: Background ──────────────────────────
                 Image("newbackground")
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
                 
-                // ── Layer 2: Main Layout ─────────────────────────────
-                // Menggunakan ZStack agar kita bisa atur posisi tiap object secara absolut sesuai gambar
-                ZStack(alignment: .bottom) {
-                    
-                    // 1. Kucing & Chat Bubble (Kiri Bawah)
-                    VStack(spacing: 8) {
-                        if showTooltip {
-                            TooltipView(text: "Tap the book to begin your ritual")
-                                .transition(.scale.combined(with: .opacity))
-                        }
-                        WitchView(poseB: false)
-                            .frame(width: geo.size.width * 0.2) // Proporsional
+                // ── Layer 2: Cauldron (tengah) ───────────────────
+                CauldronIdleView()
+                    .frame(width: geo.size.width * 0.3)
+                    .position(
+                        x: geo.size.width * 0.5,
+                        y: geo.size.height * 0.55
+                    )
+                
+                // ── Layer 3: Buku (kanan bawah) ─────────────
+                BookButtonView {
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        vm.currentPhase = .inputText
                     }
-                    .position(x: geo.size.width * 0.09, y: geo.size.height * 0.95)
+                }
+                .position(
+                    x: geo.size.width * 0.83,
+                    y: geo.size.height * 0.75
+                )
+                
+                // ── Layer 4: Dim overlay + Kucing + Bubble ───────
+                // Hanya muncul saat onboarding atau sebelum stirring
+                if showWitchInstruction {
                     
-                    // 2. Cauldron (Tengah)
-                    CauldronIdleView()
-                        .frame(width: geo.size.width * 0.3)
-                        .position(x: geo.size.width * 0.5, y: geo.size.height * 0.55)
-                    
-                    // 3. Buku / BookButton (Kanan Bawah)
-                    BookButtonView(showTooltip: $showTooltip) {
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            vm.currentPhase = .inputText
+                    // Dim background — fokus ke kucing
+                    Color.black
+                        .opacity(0.45)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                        // Tap di luar kucing → dismiss
+                        .onTapGesture {
+                            dismissWitchInstruction()
                         }
-                    }
-                    .position(x: geo.size.width * 0.83, y: geo.size.height * 0.75)
                     
+                    // Kucing + Bubble chat
+                    WitchInstructionView(bubbleText: bubbleText) {
+                        dismissWitchInstruction()
+                    }
+                    .position(
+                        x: geo.size.width * 0.15,  // ← tune: posisi X
+                        y: geo.size.height * 0.82   // ← tune: posisi Y
+                    )
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .move(edge: .bottom).combined(with: .opacity)
+                        )
+                    )
                 }
             }
         }
@@ -59,26 +82,33 @@ struct IdleView: View {
     // MARK: - Private
     
     private func handleOnAppear() {
-        // Mulai BGM saat idle view muncul
         AudioService.shared.playBGM(named: "mainBgm")
         
-        // Cek apakah perlu tampilkan tooltip
         let manager = OnboardingManager.shared
         if !manager.hasShown(tooltip: .startRitual) {
-            // Delay sedikit supaya layar sudah selesai render
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                withAnimation(.easeIn(duration: 0.3)) {
-                    showTooltip = true
+            bubbleText = "Tap the book to\nbegin your ritual!"
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                withAnimation(.spring(duration: 0.5)) {
+                    showWitchInstruction = true
                 }
                 manager.markShown(tooltip: .startRitual)
-                
-                // Auto-hide tooltip setelah 4 detik
-                DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        showTooltip = false
-                    }
-                }
             }
+        }
+    }
+    
+    // Dipanggil dari ResultView/RitualViewModel sebelum stirring
+    // Atau bisa trigger dari luar via vm.shouldShowWitchHint
+    func showStirringInstruction() {
+        bubbleText = "Stir the cauldron\nuntil the chaos clears..."
+        withAnimation(.spring(duration: 0.5)) {
+            showWitchInstruction = true
+        }
+    }
+    
+    private func dismissWitchInstruction() {
+        withAnimation(.easeOut(duration: 0.35)) {
+            showWitchInstruction = false
         }
     }
 }
@@ -87,5 +117,3 @@ struct IdleView: View {
     IdleView()
         .environment(RitualViewModel())
 }
-
-

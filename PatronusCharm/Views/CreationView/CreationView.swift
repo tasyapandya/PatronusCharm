@@ -1,110 +1,103 @@
+//
+//  CreationView.swift
+//  PatronusCharm
+//
+//  Created by Tasya Pandya Latifa on 26/03/26.
+//
+
+
 import SwiftUI
+import PencilKit
 
 struct CreationView: View {
     @Environment(RitualViewModel.self) private var vm
-    
-    @State private var scribbleColor: Color = .purple // Default warna chaos
     @State private var noteText: String = ""
-    @State private var showInstructions: Bool = true
+    @State private var scribbleColor: Color = .purple
+    @State private var showWitchInstruction: Bool = true
+    @State private var bubbleText: String = ""
+    
+    @State private var canvasView = PKCanvasView()
     
     var body: some View {
-        ZStack {
-            // ── Layer 1: Background Utama ───────────────────────
-            Image("newbackground")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-            
-            // ── Layer 2: Book Interface ──────────────────────────
-            VStack(spacing: 20) {
-                HStack(alignment: .top, spacing: 0) {
-                    
-                    // HALAMAN KIRI: Scribble (Bahan)
-                    VStack {
-                        Text("Ingredient")
-                            .font(.custom("Iowan Old Style", size: 24).bold())
-                        Text("Pour your chaos here...")
-                            .font(.caption)
-                            .italic()
-                        
-                        // Placeholder untuk Canvas Scribble
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.01)) // Area gambar
-                            .overlay(
-                                Text("Drawing Canvas Area") // Nanti ganti dengan PencilKit/Canvas
-                                    .foregroundColor(.gray)
-                            )
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    .padding(40)
-                    .frame(width: 450) // Sesuaikan dengan lebar halaman buku di asset
-                    
-                    Divider().frame(height: 400).opacity(0) // Spacer tengah buku
-                    
-                    // HALAMAN KANAN: Journaling (Resep)
-                    VStack {
-                        Text("Recipe")
-                            .font(.custom("Iowan Old Style", size: 24).bold())
-                        Text("Write what weighs on you...")
-                            .font(.caption)
-                            .italic()
-                        
-                        TextEditor(text: $noteText)
-                            .scrollContentBackground(.hidden)
-                            .background(Color.clear)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.top, 10)
-                    }
-                    .padding(40)
-                    .frame(width: 450)
-                }
-                .background(
-                    Image("bookOpened") // Asset buku terbuka kamu
+        GeometryReader { geo in
+            ZStack {
+                // ── Layer 1: Background Dimmed ───────────────────
+                Image("newbackground")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                    .overlay(Color.black.opacity(0.5))
+                
+                // ── Layer 2: Book Interface (PNG & Interactive) ──
+                ZStack {
+                    Image("potionBook")
                         .resizable()
                         .scaledToFit()
-                )
-                .frame(height: 500)
-                
-                // ── Layer 3: CTA Button ──────────────────────────
-                Button(action: handleCreate) {
-                    Text("Create")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 40)
-                        .padding(.vertical, 15)
-                        .background(noteText.isEmpty ? Color.gray : Color("#E8B86D"))
-                        .cornerRadius(25)
+                        .frame(width: geo.size.width * 0.95)
+                    
+                    // Area Interaktif (Kiri: Scribble, Kanan: Text)
+                    HStack(spacing: 0) {
+                        // SISI KIRI: Area Scribble (Canvas)
+                        ScribbleCanvas(canvasView: $canvasView, selectedColor: $scribbleColor)
+                            .frame(width: geo.size.width * 0.25, height: geo.size.height * 0.2)
+                            .padding(.leading, 30)
+                        
+                        // SISI KANAN: Journaling Area
+                        VStack(alignment: .leading) {
+                            TextEditor(text: $noteText)
+                                .scrollContentBackground(.hidden)
+                                .background(Color.clear)
+                                .font(.custom("Iowan Old Style", size: 14)) // Font serif agar estetik
+                                .foregroundColor(Color(red: 0.2, green: 0.15, blue: 0.1))
+                                .padding(.top, 130)
+                        }
+                        .frame(width: geo.size.width * 0.32)
+                        .padding(.trailing, 25)
+                    }
                 }
-                .disabled(noteText.isEmpty)
-            }
-            
-            // ── Layer 4: Witch Instructor ──────────────────────
-            VStack {
-                Spacer()
-                HStack {
-                    // Pakai Pose B sesuai requirement (ada tangan)
-                    WitchView(poseB: true) 
-                        .frame(width: 200)
-                        .offset(x: -50, y: 50)
+                .padding(.bottom, 50)
+
+                // ── Layer 3: Witch Instructor (Pose B) ───────────
+                VStack {
                     Spacer()
+                    HStack {
+                        WitchInstructionView(bubbleText: "Draw a potion on the left side, and write your thoughts on the right side."){}
+                            .frame(width: 250)
+                            .position(
+                                x: geo.size.width * 0.15,
+                                y: geo.size.height * 0.82
+                            )
+                        Spacer()
+                    }
+                }
+                
+                // ── Layer 4: CTA Button ──────────────────────────
+                VStack {
+                    Spacer()
+                    Button(action: {
+                        withAnimation {
+                            vm.analyzeText(noteText)
+                            vm.currentPhase = .stirring }
+                    }) {
+                        Text("Create")
+                            .font(.headline)
+                            .padding(.horizontal, 50)
+                            .padding(.vertical, 12)
+                            .background(noteText.isEmpty ? Color.gray : Color("#E8B86D"))
+                            .foregroundColor(.white)
+                            .cornerRadius(25)
+                    }
+                    .disabled(noteText.isEmpty)
+                    .padding(.bottom,20)
                 }
             }
         }
     }
-    
-    private func handleCreate() {
-        // Logic Klasifikasi Sederhana
-        let detectedEmotion = analyzeEmotion(text: noteText)
-        // Update VM dan pindah phase
-        withAnimation {
-            vm.currentPhase = .stirring //
-        }
+}
+
+#Preview {
+    ZStack {
+        CreationView()
     }
-    
-    private func analyzeEmotion(text: String) -> Emotion {
-        let input = text.lowercased()
-        if input.contains("angry") || input.contains("mad") { return .anger }
-        if input.contains("overwhelmed") || input.contains("tired") { return .overwhelmed }
-        return .anxiety // Default
-    }
+        .environment(RitualViewModel())
 }

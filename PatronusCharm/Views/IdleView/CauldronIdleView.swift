@@ -8,14 +8,6 @@
 import SwiftUI
 import SpriteKit
 
-//
-//  CauldronIdleView.swift
-//  PatronusCharm
-//
-
-import SwiftUI
-import SpriteKit
-
 struct CauldronIdleView: View {
     // @State supaya scene hanya dibuat SEKALI
     // bukan setiap kali SwiftUI re-render
