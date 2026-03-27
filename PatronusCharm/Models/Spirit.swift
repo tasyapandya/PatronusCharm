@@ -7,38 +7,26 @@
 
 import SwiftUI
 
-struct Spirit: Identifiable {
-    let id = UUID()
-    let name: String
-    let lottieFile: String
-    let tintColor: Color
-    let emotion: Emotion
+enum Spirit: String, CaseIterable {
+    case deer, rabbit, horse, phoenix
+
+    // Properti untuk ambil nama file PNG
+    var imageName: String {
+        switch self {
+        case .deer: return "Spirit_deer"
+        case .rabbit: return "Spirit_rabbit"
+        case .horse: return "Spirit_horse"
+        case .phoenix: return "Spirit_phoenix"
+        }
+    }
+
+    // Properti untuk warna aura (tint)
+    var tintColor: Color {
+        return .white
+    }
     
-    static let phoenix = Spirit(
-        name: "Phoenix",
-        lottieFile: "patronus_phoenix",
-        tintColor: Emotion.unknown.color,
-        emotion: .unknown
-    )
-    
-    static let deer = Spirit(
-        name: "Deer",
-        lottieFile: "patronus_deer",
-        tintColor: Emotion.anger.color,
-        emotion: .anger
-    )
-    
-    static let rabbit = Spirit(
-        name: "Rabbit",
-        lottieFile: "patronus_rabbit",
-        tintColor: Emotion.overwhelmed.color,
-        emotion: .overwhelmed
-    )
-    
-    static let horse = Spirit(
-        name: "Horse",
-        lottieFile: "patronus_horse",
-        tintColor: Emotion.anxiety.color,
-        emotion: .anxiety
-    )
+    // Nama tampilan
+    var displayName: String {
+        self.rawValue.capitalized
+    }
 }

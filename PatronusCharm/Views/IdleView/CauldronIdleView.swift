@@ -8,36 +8,55 @@
 import SwiftUI
 import SpriteKit
 
+import SwiftUI
+
 struct CauldronIdleView: View {
-    // @State supaya scene hanya dibuat SEKALI
-    // bukan setiap kali SwiftUI re-render
-    @State private var bubbleScene: SKScene = {
-        let scene = SKScene(size: CGSize(width: 200, height: 200))
-        scene.backgroundColor = .clear
-        if let emitter = SKEmitterNode(fileNamed: "potionBubbles.sks") {
-            emitter.position = CGPoint(x: 100, y: 70)
-            scene.addChild(emitter)
-        }
-        return scene
-    }()
+    @Environment(RitualViewModel.self) private var vm
     
     var body: some View {
         ZStack {
-            Image("cauldronIdle")
+            // LAYER 1: Back (Paling Belakang)
+            Image("BackCauldron")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 550)
             
-            // Bubble/asap overlay di atas kuali
-            SpriteView(scene: bubbleScene, options: [.allowsTransparency])
-                .frame(width: 100, height: 100)
-                .offset(y: -50)
-                .allowsHitTesting(false) // supaya tap tidak tertangkap SpriteKit
+            // LAYER 2: Fill (Cairan)
+            Circle()
+                .fill(vm.scribbleDominantColor) // Default White dari VM
+                .frame(width: 300, height: 170) // Sesuaikan lubang
+                .blur(radius: 10)
+                .opacity(0.7)
+                .offset(y: -10)
+            
+            // LAYER 3: Bubbles (SPRITEKIT - NEW)
+            // Ditumpuk di atas cairan, di bawah kuali depan
+            PotionBubblesSpriteView(color: vm.scribbleDominantColor)
+                .offset(y: -15) // Posisikan di permukaan cairan
+
+            // LAYER 4: Front (Paling Depan)
+            Image("FrontCauldron")
+                .resizable()
+                .scaledToFit()
+                // Pastikan tidak menghalangi sentuhan jika nanti ada interaksi
+                .allowsHitTesting(false)
         }
     }
 }
 
 #Preview {
-    CauldronIdleView()
-        .background(Color.black)
+    // 1. Buat Mock ViewModel
+    let mockVM = RitualViewModel()
+    
+    // 2. Beri warna dummy supaya kelihatan hasilnya di preview
+    mockVM.scribbleDominantColor = .white
+    
+    return ZStack {
+        // Beri background gelap supaya gelembung & kuali terlihat jelas
+        Color.gray.ignoresSafeArea()
+        
+        CauldronIdleView()
+            .frame(width: 250) // Sesuaikan ukuran untuk testing
+    }
+    // 3. INJECT ENVIRONMENT (WAJIB)
+    .environment(mockVM)
 }

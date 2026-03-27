@@ -22,18 +22,13 @@ struct ContentView: View {
                 CreationView()
                     .transition(.opacity)
             
-            case .stirring, .conjuring, .showingWoA, .releasing, .closure:
-                // ResultView() ← uncomment saat sudah dibuat
-                Color.black
-                    .ignoresSafeArea()
-                    .overlay(
-                        VStack {
-                            Text("Result View")
-                                .foregroundStyle(.white)
-                            Button("← Back") { vm.currentPhase = .idle }
-                                .foregroundStyle(.white)
-                        }
-                    )
+            case .stirring:
+                StirringView()
+                    .transition(.opacity)
+                    
+            case .conjuring, .showWoA, .releasing, .closure:
+                ResultView()
+                    .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.4), value: vm.currentPhase)

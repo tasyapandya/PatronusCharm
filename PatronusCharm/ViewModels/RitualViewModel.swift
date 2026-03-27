@@ -9,55 +9,71 @@ import SwiftUI
 
 @Observable class RitualViewModel {
     
-    // State utama
+    // ─── State Utama ───
     var currentPhase: RitualPhase = .idle
     var currentEmotion: Emotion = .unknown
     var detectedPatronus: Spirit = .phoenix
     var currentWoA: String = ""
     var scribbleDominantColor: Color = .white
-    var isProcessing: Bool = false
     
-    // Services & ViewModels
+    // ─── Services ───
     private let classifier = ClassificationViewModel()
     private let haptic = HapticService()
     
-    // Dipanggil saat user tap Create
+    // ─── Computed Properties (Untuk memudahkan View) ───
+    // Agar ResultView tinggal panggil vm.patronusImageName
+    var patronusImageName: String {
+        return detectedPatronus.imageName
+    }
+
+    // ─── Logic ───
+    
     func analyzeText(_ text: String) {
+        // CoreML/Natural Language Analysis
         currentEmotion = classifier.classifyEmotion(from: text)
     }
     
-    func setScribbleColor(_ color: Color) {
-        scribbleDominantColor = color
-    }
-    
-    // Dipanggil saat stirring selesai
+    // Dipanggil saat stirring selesai di StirringView
     func conjurePatronus() {
-        // Tentukan patronus dari emosi
+        // 1. Tentukan roh berdasarkan emosi hasil analisis
         switch currentEmotion {
-        case .anger:       detectedPatronus = .deer
-        case .overwhelmed: detectedPatronus = .rabbit
-        case .anxiety:     detectedPatronus = .horse
-        case .unknown:     detectedPatronus = .phoenix
+        case .anger:        detectedPatronus = .deer
+        case .overwhelmed:  detectedPatronus = .rabbit
+        case .anxiety:      detectedPatronus = .horse
+        case .unknown:      detectedPatronus = .phoenix
         }
         
-        // Ambil WoA random
+        // 2. Ambil kata-kata afirmasi (WoA)
         currentWoA = AffirmationPool.random(for: currentEmotion)
         
-        // Trigger haptic
+        // 3. Mainkan haptic sukses
         haptic.playSuccessHaptic()
         
-        currentPhase = .conjuring
+        // 4. Pindah ke phase Result (Conjuring)
+        withAnimation(.easeInOut(duration: 1.0)) {
+            currentPhase = .conjuring
+        }
     }
     
+    // Dipanggil saat user swipe up di ResultView
     func releasePatronus() {
+        // Pindah ke phase Releasing (proses terbang/menghilang)
         currentPhase = .releasing
         
-        // Setelah animasi selesai, closure lalu reset
+        // Trigger haptic yang kuat
+        haptic.playSuccessHaptic() // Atau ganti ke haptic yang lebih 'heavy'
+        
+        // Sequence Penutup: Releasing -> Closure -> Reset to Idle
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.currentPhase = .closure
+            withAnimation(.easeInOut(duration: 1.0)) {
+                self.currentPhase = .closure
+            }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                self.reset()
+            // Tampilkan pesan penutup sebentar sebelum balik ke awal
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                withAnimation(.easeInOut(duration: 1.5)) {
+                    self.reset()
+                }
             }
         }
     }
