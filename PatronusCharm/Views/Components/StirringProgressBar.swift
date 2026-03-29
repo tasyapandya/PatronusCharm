@@ -16,19 +16,26 @@ struct StirringProgressBar: View {
                 .font(.custom("Iowan Old Style", size: 18))
                 .foregroundColor(.white)
             
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color.white.opacity(0.3))
-                    .frame(width: 300, height: 12)
-                
-                Capsule()
-                    .fill(Color.orange) // Warna progress sesuai gambar kamu
-                    .frame(width: 300 * progress, height: 12)
-                    .animation(.linear, value: progress)
+            // Pakai GeometryReader supaya bar-nya tahu lebar yang tersedia
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    // Background Bar
+                    Capsule()
+                        .fill(Color.white.opacity(0.3))
+                        .frame(height: 12)
+                    
+                    // Progress Bar (Warna Orange)
+                    Capsule()
+                        .fill(Color.white)
+                        // Sekarang lebarnya otomatis: Lebar Total x Progress
+                        .frame(width: geo.size.width * progress, height: 12)
+                        .animation(.linear, value: progress)
+                }
+                .overlay(
+                    Capsule().stroke(Color.white.opacity(0.5), lineWidth: 1)
+                )
             }
-            .overlay(
-                Capsule().stroke(Color.white.opacity(0.5), lineWidth: 1)
-            )
+            .frame(height: 12) // Tentukan tinggi area bar-nya saja
         }
     }
 }

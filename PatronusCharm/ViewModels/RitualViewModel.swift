@@ -17,7 +17,7 @@ import SwiftUI
     var scribbleDominantColor: Color = .white
     
     // ─── Services ───
-    private let classifier = ClassificationViewModel()
+    private let classifier = EmotionClassifier()
     private let haptic = HapticService()
     
     // ─── Computed Properties (Untuk memudahkan View) ───

@@ -25,8 +25,7 @@ struct IdleView: View {
                     .ignoresSafeArea()
                 
                 // ── Layer 2: Cauldron (tengah) ───────────────────
-                CauldronIdleView()
-                    .frame(width: geo.size.width * 0.3)
+                CauldronIdleView(width: geo.size.width * 0.35)
                     .position(
                         x: geo.size.width * 0.5,
                         y: geo.size.height * 0.55
@@ -86,7 +85,7 @@ struct IdleView: View {
         
         let manager = OnboardingManager.shared
         if !manager.hasShown(tooltip: .startRitual) {
-            bubbleText = "Tap the book to\nbegin your ritual!"
+            bubbleText = "Tap the book to\nbegin your ritual!\n\n(Tap to begin)"
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 withAnimation(.spring(duration: 0.5)) {

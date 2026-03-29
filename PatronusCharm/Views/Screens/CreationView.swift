@@ -33,18 +33,20 @@ struct CreationView: View {
                         .resizable()
                         .scaledToFit()
                         // Mengisi hampir seluruh lebar layar agar lega
-                        .frame(width: geo.size.width * 0.99)
+                        .frame(width: geo.size.width * 0.95)
                     
                     HStack(spacing: 0) {
                         // SISI KIRI: Scribble Area
                         VStack {
                             ScribbleCanvas(canvasView: $canvasView)
-                                .frame(width: geo.size.width * 0.40, height: geo.size.height * 0.30)
+                                .frame(width: geo.size.width * 0.50, height: geo.size.height * 0.50)
                                 .cornerRadius(15)
+                                .padding(.top, geo.size.height * 0.3)
                                 // Canvas hanya bisa disentuh jika instruksi sudah hilang
                                 .disabled(showWitchInstruction)
                         }
                         .frame(width: geo.size.width * 0.50)
+                        .offset(x: geo.size.width * 0.07)
                         
                         Spacer().frame(width: geo.size.width * 0.02)
                         
@@ -52,14 +54,22 @@ struct CreationView: View {
                         VStack {
                             TextEditor(text: $noteText)
                                 .scrollContentBackground(.hidden)
-                                .background(Color.clear)
-                                .font(.custom("Iowan Old Style", size: 18))
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color(red: 0.98, green: 0.95, blue: 0.88).opacity(0.6))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(Color("#C4A882").opacity(0.5), lineWidth: 1)
+                                        )
+                                )
+                                .font(.custom("Iowan Old Style", size: 16))
                                 .foregroundColor(Color(red: 0.2, green: 0.15, blue: 0.1))
-                                .padding(.top, geo.size.height * 0.50) // Dinamis sesuai layar
-                                .padding(.bottom, 60)
+                                .padding(.top, geo.size.height * 0.40)
+                                .padding(.bottom, 30)
+                                .padding(.horizontal, 10)
                                 .disabled(showWitchInstruction)
                         }
-                        .frame(width: geo.size.width * 0.38)
+                        .frame(width: geo.size.width * 0.40)
                         .padding(.trailing, 40)
                     }
                 }
@@ -71,12 +81,12 @@ struct CreationView: View {
                         Spacer()
                         Button(action: { processAndStartStirring() }) {
                             HStack {
-                                Text("Create")
+                                Text("Create Potion").font(.custom("Iowan Old Style", size: 16))
                                 Image(systemName: "sparkles")
                             }
                             .font(.headline)
-                            .padding(.horizontal, 40)
-                            .padding(.vertical, 14)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 16)
                             .background(noteText.isEmpty ? Color.gray : Color("#572985"))
                             .foregroundColor(.white)
                             .cornerRadius(20)
@@ -99,7 +109,7 @@ struct CreationView: View {
                             }
                         
                         // 2. Kucing + Bubble
-                        WitchInstructionView(bubbleText: "Draw your magic on the left, and pour your thoughts on the right.\n\n(Tap to begin)") {
+                        WitchInstructionView(bubbleText: "Draw your energy on the left, and pour your thoughts on the right.\n\n(Tap to begin)") {
                             dismissInstruction()
                         }
                         .frame(width: 350)

@@ -1,5 +1,5 @@
 //
-//  ClassificationViewModel.swift
+//  EmotionClassifier.swift
 //  PatronusCharm
 //
 //  Created by Tasya Pandya Latifa on 23/03/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-class ClassificationViewModel {
+class EmotionClassifier {
     
     private let keywords: [Emotion: [String]] = [
         .anger: [
@@ -23,7 +23,7 @@ class ClassificationViewModel {
         .anxiety: [
             "anxious", "anxiety", "worried", "worry", "scared", "panic",
             "nervous", "uncertain", "fear", "dread", "restless", "chaotic",
-            "overthinking", "uneasy", "tense"
+            "overthinking", "uneasy", "tense", "ovt"
         ]
     ]
     
