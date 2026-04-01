@@ -22,6 +22,8 @@ struct ScribbleCanvas: UIViewRepresentable {
         // Setup observer menggunakan toolPicker yang ada di coordinator
         context.coordinator.toolPicker.addObserver(canvasView)
         
+        canvasView.delegate = context.coordinator
+        
         DispatchQueue.main.async {
             context.coordinator.setupToolPicker(for: canvasView)
         }
@@ -38,13 +40,17 @@ struct ScribbleCanvas: UIViewRepresentable {
         // Sembunyikan dan hapus observer menggunakan instance yang sama
         coordinator.toolPicker.setVisible(false, forFirstResponder: uiView)
         coordinator.toolPicker.removeObserver(uiView)
+        
+        // Hapus delegate saat view dibongkar
+        uiView.delegate = nil
     }
     
     func makeCoordinator() -> Coordinator {
         Coordinator()
     }
     
-    class Coordinator: NSObject {
+    // 👇 TAMBAHKAN PKCanvasViewDelegate DI SINI 👇
+    class Coordinator: NSObject, PKCanvasViewDelegate {
         // Instance toolPicker sekarang "hidup" di dalam Coordinator
         let toolPicker = PKToolPicker()
         
@@ -62,6 +68,17 @@ struct ScribbleCanvas: UIViewRepresentable {
                 canvasView.becomeFirstResponder()
             }
         }
+        
+        // FUNGSI UNTUK MEMUTAR SFX & HAPTIC SAAT MULAI MENGGAMBAR
+        func canvasViewDidBeginUsingTool(_ canvasView: PKCanvasView) {
+            AudioService.shared.playSFX(named: "scribbleSfx")
+            HapticService.shared.startChaosFeedback() // 📳 Mulai kresek-kresek
+        }
+                
+        // FUNGSI UNTUK MENGHENTIKAN SFX & HAPTIC SAAT JARI/PENCIL DIANGKAT
+        func canvasViewDidEndUsingTool(_ canvasView: PKCanvasView) {
+            AudioService.shared.stopSFX()
+            HapticService.shared.stopChaosFeedback() // 📳 Berhenti getar
+        }
     }
 }
-

@@ -12,11 +12,15 @@ class HapticService {
     
     // Engine adalah "mesin" haptic — perlu diinisialisasi sekali
     // dan dijaga tetap hidup selama app berjalan
-    private var engine: CHHapticEngine?
-    
-    init() {
-        prepareEngine()
-    }
+    static let shared = HapticService()
+        
+        var engine: CHHapticEngine?
+        // 👇 Tambahkan variabel ini untuk menyimpan player haptic yang panjang
+        private var continuousPlayer: CHHapticPatternPlayer?
+
+        init() {
+            prepareEngine()
+        }
     
     // MARK: - Setup
     
@@ -52,30 +56,36 @@ class HapticService {
     
     /// Getaran kasar saat scribble — gritty, chaos
     /// Dipanggil berulang selama user menggambar di canvas
-    func playChaosFeedback() {
+    func startChaosFeedback() {
         guard CHHapticEngine.capabilitiesForHardware().supportsHaptics,
-              let engine else { return }
+        let engine = engine else { return }
         
-        // Sharpness tinggi (0.8) = terasa tajam dan kasar
-        // Intensity medium (0.5) = tidak terlalu kuat, tapi terasa
-        // Duration pendek (0.1) = seperti "gratan" kecil
-        let sharpness = CHHapticEventParameter(
-            parameterID: .hapticSharpness,
-            value: 0.8
-        )
-        let intensity = CHHapticEventParameter(
-            parameterID: .hapticIntensity,
-            value: 0.5
-        )
-        
+        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.8)
+        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 0.5)
+    
         let event = CHHapticEvent(
-            eventType: .hapticTransient, // Transient = pendek, satu ketukan
+            eventType: .hapticContinuous, // 👈 Ubah jadi Continuous
             parameters: [intensity, sharpness],
             relativeTime: 0,
-            duration: 0.1
+            duration: 100.0 // 👈 Set sangat panjang (100 detik), nanti kita stop manual
         )
-        
-        play(events: [event], engine: engine)
+            
+        do {
+            let pattern = try CHHapticPattern(events: [event], parameters: [])
+            continuousPlayer = try engine.makePlayer(with: pattern)
+            try continuousPlayer?.start(atTime: 0) // Mulai getar!
+        } catch {
+            print("Gagal play continuous haptic: \(error.localizedDescription)")
+        }
+    }
+
+    // 👇 Fungsi BARU untuk BERHENTI getar saat jari diangkat
+    func stopChaosFeedback() {
+        do {
+            try continuousPlayer?.stop(atTime: 0)
+        } catch {
+            print("Gagal stop continuous haptic: \(error.localizedDescription)")
+        }
     }
     
     /// Getaran lembut saat stirring — fluid, menenangkan

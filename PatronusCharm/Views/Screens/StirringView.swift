@@ -13,6 +13,7 @@ struct StirringView: View {
     @State private var spoonOffset: CGSize = .zero
     @State private var lastAngle: Double = 0.0
     @State private var totalRotation: Double = 0.0
+    @State private var hasStartedStirring: Bool = false
     
     var body: some View {
         GeometryReader { geo in
@@ -103,6 +104,13 @@ struct StirringView: View {
 
     // Logic Update dengan parameter radius yang dinamis
     private func handleCircularStirring(value: DragGesture.Value, center: CGPoint, maxRad: CGFloat) {
+        
+        // 👇 1. Mainkan suara HANYA sekali saat user pertama kali mengaduk
+        if !hasStartedStirring {
+            AudioService.shared.playSFX(named: "stirringSfx") // Ganti sesuai nama asetmu
+            hasStartedStirring = true
+        }
+
         let dragX = value.translation.width
         let dragY = value.translation.height
         
@@ -135,7 +143,7 @@ struct StirringView: View {
             totalRotation += abs(angleDiff)
             
             // 5 Putaran (2*PI * 5)
-            let newProgress = totalRotation / (2 * .pi * 5.0)
+            let newProgress = totalRotation / (2 * .pi * 2.5)
             if newProgress > progress {
                 progress = min(newProgress, 1.0)
                 if Int(totalRotation * 10) % 5 == 0 {
@@ -146,7 +154,12 @@ struct StirringView: View {
         lastAngle = currentAngle
         
         if progress >= 1.0 {
+            // Matikan suara adukan karena sudah selesai
+            AudioService.shared.stopSFX()
+                    
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                // Opsional: Mainkan suara "Poof/Magic" saat kuali selesai diaduk
+                // AudioService.shared.playSFX(named: "successPoof")
                 withAnimation { vm.conjurePatronus() }
             }
         }

@@ -24,7 +24,7 @@ struct StirringProgressBar: View {
                         .fill(Color.white.opacity(0.3))
                         .frame(height: 12)
                     
-                    // Progress Bar (Warna Orange)
+                    // Progress Bar (Warna Putih)
                     Capsule()
                         .fill(Color.white)
                         // Sekarang lebarnya otomatis: Lebar Total x Progress

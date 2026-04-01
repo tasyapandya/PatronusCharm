@@ -49,4 +49,8 @@ class AudioService {
             print("Gagal memutar SFX: \(error.localizedDescription)")
         }
     }
+    
+    func stopSFX() {
+        sfxPlayer?.stop()
+    }
 }
